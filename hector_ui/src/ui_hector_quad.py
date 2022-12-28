@@ -3,7 +3,7 @@
 # from tkinter import *
 from tkinter import ttk
 from std_msgs.msg import Empty
-from geometry_msgs.msg import Twist, PoseStamped
+from geometry_msgs.msg import Twist, PoseStamped, TwistStamped
 from nav_msgs.msg import Odometry
 import tkinter as tk
 import math
@@ -71,17 +71,16 @@ posicionLider_sub = rospy.Subscriber("/ground_truth/state", Odometry , pose_call
 orientaLider_sub = rospy.Subscriber("/ground_truth_to_tf/pose", PoseStamped , rot_callback)
 
 #Publishers
-takeoff_pub = rospy.Publisher('/ardrone/takeoff', Empty, queue_size=1)
+#takeoff_pub = rospy.Publisher('/ardrone/takeoff', Empty, queue_size=1)
 land_pub = rospy.Publisher('/ardrone/land', Empty, queue_size=1)
 vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+world_frame_vel_pub= rospy.Publisher("command/twist", TwistStamped, queue_size=1)
 
 def setText(text):
     ttk.Label(mainframe, text="              ").grid(column=3, row=1, sticky=tk.W)
     ttk.Label(mainframe, text=text).grid(column=3, row=1, sticky=tk.W)
 
-def land_fun():
-    setText("Land")
-    land_pub.publish(Empty())
+
 
 def enviar_velocidad(vx,vy,vz,vaz):
     vel_msg = Twist()
@@ -97,9 +96,22 @@ def hover_pub():
     setText("Hover")
     enviar_velocidad(0.0,0.0,0.0,0.0)
 
-def takeoff_fun():
-    setText("TakeOff")
-    takeoff_pub.publish(Empty())
+def Go_X_fun():
+    setText("Go X")
+    world_x_msg=TwistStamped()
+    world_x_msg.header.frame_id="world"
+    world_x_msg.twist.linear.x = float(1.0)
+
+    world_frame_vel_pub.publish(world_x_msg)
+
+def Go_Y_fun():
+    setText("Go Y")
+    world_y_msg=TwistStamped()
+    world_y_msg.header.frame_id="world"
+    world_y_msg.twist.linear.y = float(1.0)
+
+
+    world_frame_vel_pub.publish(world_y_msg)
 
 def up_fun():
     setText("Up")
@@ -149,6 +161,11 @@ def ccw_fun():
     vel_msg.angular.z = float(1.0)
     vel_pub.publish(vel_msg)
 
+def move_x_y_fun():
+    setText("Move to x 2 y 2")
+    vel_msg = Twist()
+    vel_msg.angular.z = float(1.0)
+    vel_pub.publish(vel_msg)
 #-------------- Despliegue datos de odometria y altura -------------------------
 ttk.Label(mainframe, textvariable=x_p).grid(column=1, row=2, sticky=(tk.W,tk.E))
 ttk.Label(mainframe, textvariable=y_p).grid(column=2, row=2, sticky=(tk.W,tk.E))
@@ -177,8 +194,8 @@ ttk.Button(mainframe, text="Down", command=down_fun).grid(column=3, row=7, stick
 #---------------------------- Botones de Control -------------------------------
 
 
-ttk.Button(mainframe, text="Take Off", command=takeoff_fun).grid(column=3, row=4, sticky=tk.W)
-ttk.Button(mainframe, text="Land", command=land_fun).grid(column=2, row=4, sticky=tk.W)
+ttk.Button(mainframe, text="Go X ", command=Go_X_fun).grid(column=3, row=4, sticky=tk.W)
+ttk.Button(mainframe, text="Go Y", command=Go_Y_fun).grid(column=2, row=4, sticky=tk.W)
 
 ttk.Label(mainframe, text="1").grid(column=3, row=1, sticky=tk.W)
 

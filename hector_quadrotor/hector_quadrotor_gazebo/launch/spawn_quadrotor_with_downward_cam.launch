@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 
 <launch>
+  <!-- Start Gazebo with wg world running in (max) realtime -->
+  <include file="$(find hector_gazebo_worlds)/launch/willow_garage.launch"/>
    <arg name="name" default="quadrotor"/>
    <arg name="tf_prefix" default="$(optenv ROS_NAMESPACE)"/>
    <arg name="x" default="0.0"/>
